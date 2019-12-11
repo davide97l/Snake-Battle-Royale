@@ -28,14 +28,10 @@ def render_policy_net(model, n_max_steps=500, seed=42):
 # pretending that whatever action it takes is the right one
 def play_one_step(env, obs, model, loss_fn):
     with tf.GradientTape() as tape:
+        # makes an action more likely
         left_proba = model(obs[np.newaxis])
         action = (tf.random.uniform([1, 1]) > left_proba)
         y_target = tf.constant([[1.]]) - tf.cast(action, tf.float32)
-        """to test this
-        # we took the right action
-        y_target = 0
-        if left_proba > 0.5:
-            y_target = 1"""
         loss = tf.reduce_mean(loss_fn(y_target, left_proba))
     grads = tape.gradient(loss, model.trainable_variables)
     obs, reward, done, info = env.step(int(action[0, 0].numpy()))
@@ -82,7 +78,7 @@ def discount_and_normalize_rewards(all_rewards, discount_rate):
 n_inputs = 4  # == env.observation_space.shape[0]
 model = keras.models.Sequential([
     keras.layers.Dense(10, activation="relu", input_shape=[n_inputs]),
-    keras.layers.Dense(5, activation="relu", input_shape=[n_inputs]),
+    keras.layers.Dense(5, activation="relu"),
     keras.layers.Dense(1, activation="sigmoid"),
 ])
 
@@ -105,21 +101,20 @@ def show_results(all_rewards):
 for iteration in range(n_iterations):
     all_rewards, all_grads = play_multiple_episodes(
         env, n_episodes_per_update, n_max_steps, model, loss_fn)
-    total_rewards = sum(map(sum, all_rewards))                    
     print("Iteration: {}: ".format(iteration), end="")
     show_results(all_rewards)
     all_final_rewards = discount_and_normalize_rewards(all_rewards, discount_rate)
     all_mean_grads = []
-    # multiply each gradient vector corresponding to each trainable variable
-    # by its corresponding action score, episode and step
+    # multiply each gradient vector corresponding to each trainable variable, episode and step
+    # by its corresponding action score and compute its mean
     for var_index in range(len(model.trainable_variables)):
         mean_grads = tf.reduce_mean(
             [final_reward * all_grads[episode_index][step][var_index]
              for episode_index, final_rewards in enumerate(all_final_rewards)
                  for step, final_reward in enumerate(final_rewards)], axis=0)
         all_mean_grads.append(mean_grads)
-    # compute the mean of the resulting gradients
     optimizer.apply_gradients(zip(all_mean_grads, model.trainable_variables))
+    # save the model each 20 iterations
     if iteration % 20 == 0:
         print("model_saved")
         model.save("cart_pole" + str(iteration) + ".h5")
