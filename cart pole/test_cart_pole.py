@@ -33,7 +33,6 @@ if os.path.exists(filename):
     model = keras.models.load_model(filename)
 frames = render_policy_net(model, n_max_steps=500)
 # visualize cart pole animation
-anim = utils.plot_animation(frames)
 utils.plot_animation(frames)
 utils.save_animation(frames, 'cart_pole.mp4', 30)
 plt.show()
