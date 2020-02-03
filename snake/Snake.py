@@ -28,9 +28,6 @@ def run_snake():
     ga_agent = GAAgent(population_name="standard_population", generation=120)
     snake_red.set_agent(ga_agent)
 
-    print(snake_blu.agent)
-    print(snake_red.agent)
-
     game.game_speed = 10  # parameter: game speed
     game.display_option = True  # parameter: show game
     record = True  # parameter: True if recording the game

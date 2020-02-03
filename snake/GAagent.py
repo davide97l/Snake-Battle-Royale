@@ -140,9 +140,9 @@ def crossover(parents, offspring_size):
 
 
 # mutating the offsprings generated from crossover to maintain variation in the population
-def mutation(offspring_crossover):
+def mutation(offspring_crossover, mutations=1):
     for idx in range(offspring_crossover.shape[0]):
-        for _ in range(25):
+        for _ in range(mutations):
             i = random.randint(0, offspring_crossover.shape[1]-1)
             random_value = np.random.choice(np.arange(-1, 1, step=0.001), size=1, replace=False)
             offspring_crossover[idx, i] = offspring_crossover[idx, i] + random_value
@@ -204,7 +204,7 @@ def run_game(snake):
             player.init_player(game)
             current_step = 0
         steps += 1
-    return player.deaths * (-150) + player.record * 5000 + slow_penalty * (-1000) + int(steps_per_game / (player.total_score + 1)) * (-100), \
+    return player.deaths * (-1500) + player.record * 5000 + slow_penalty * (-1000) + int(steps_per_game / (player.total_score + 1)) * (-150), \
            player.deaths, player.total_score / (player.deaths + 1), player.record
 
 
@@ -258,11 +258,11 @@ if __name__ == "__main__":
     pop_size = (population, num_weights)  # population size
     #  creating the initial weights
     new_population = np.random.choice(np.arange(-1, 1, step=0.01), size=pop_size, replace=True)
-    num_generations = 150  # parameter: number of generations
-    num_parents_mating = 6  # parameter: number of best parents selected for crossover
+    num_generations = 100  # parameter: number of generations
+    num_parents_mating = 12  # parameter: number of best parents selected for crossover
     checkpoint = 5  # parameter: how many generations between saving weights
     population_name = "standard_population"  # parameter: name of the population
-    current_gen = 120  # parameter: last finished generation
+    current_gen = 60  # parameter: last finished generation
 
     # restore weights from previous generation
     restore_weights_from_txt = True
