@@ -204,7 +204,7 @@ def run_game(snake):
             player.init_player(game)
             current_step = 0
         steps += 1
-    return player.deaths * (-1500) + player.record * 5000 + slow_penalty * (-1000) + int(steps_per_game / (player.total_score + 1)) * (-150), \
+    return player.deaths * (-150) + player.record * 5000 + slow_penalty * (-1000) + int(steps_per_game / (player.total_score + 1)) * (-100), \
            player.deaths, player.total_score / (player.deaths + 1), player.record
 
 
@@ -260,6 +260,7 @@ if __name__ == "__main__":
     new_population = np.random.choice(np.arange(-1, 1, step=0.01), size=pop_size, replace=True)
     num_generations = 100  # parameter: number of generations
     num_parents_mating = 12  # parameter: number of best parents selected for crossover
+    mutations = 1  # parameter: number of weights to replace during mutation
     checkpoint = 5  # parameter: how many generations between saving weights
     population_name = "standard_population"  # parameter: name of the population
     current_gen = 60  # parameter: last finished generation
@@ -291,7 +292,7 @@ if __name__ == "__main__":
         # generating next generation using crossover
         offspring_crossover = crossover(parents, offspring_size=(pop_size[0] - parents.shape[0], num_weights))
         # adding some variations to the offspring using mutation.
-        offspring_mutation = mutation(offspring_crossover)
+        offspring_mutation = mutation(offspring_crossover, mutations)
         # creating the new population based on the parents and offspring
         new_population[0:parents.shape[0], :] = parents
         new_population[parents.shape[0]:, :] = offspring_mutation
