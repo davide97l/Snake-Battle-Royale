@@ -281,8 +281,8 @@ if __name__ == "__main__":
         fitness, deaths, avg_score, max_scores = cal_pop_fitness(new_population, units, population)
         # print generation stats
         print('fittest snake in geneneration ' + str(generation) + ' : ', np.max(fitness))
-        print('average fitness value in geneneration ' + str(generation) + ' : ', np.sum(fitness) / population)
         print('highest average score in geneneration ' + str(generation) + ' : ', np.max(avg_score))
+        print('average fitness value in geneneration ' + str(generation) + ' : ', np.sum(fitness) / population)
         print('average deaths in geneneration ' + str(generation) + ' : ', np.sum(deaths) / population)
         print('average score in geneneration ' + str(generation) + ' : ', np.sum(avg_score) / population)
         print('max score in geneneration ' + str(generation) + ' : ', max_scores[np.argmax(max_scores)])

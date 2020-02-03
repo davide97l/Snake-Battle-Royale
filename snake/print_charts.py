@@ -16,11 +16,13 @@ def GA_charts(population_name="standard_population"):
     ax.grid()
     fig.savefig(save_path + "/" + title + ".png")
 
-    title = "max average score over generations"
+    title = "average score over generations"
     fig, ax = plt.subplots(figsize=(10, 5))
-    ax.plot(max_avg_score)
-    ax.set(xlabel='generation', ylabel='max average score', title=title)
+    ax.plot(avg_score, label="Average score")
+    ax.plot(max_avg_score, label="Max average score")
+    ax.set(xlabel='generation', ylabel='score', title=title)
     ax.grid()
+    plt.legend()
     fig.savefig(save_path + "/" + title + ".png")
 
     title = "average fitness value over generations"
@@ -34,13 +36,6 @@ def GA_charts(population_name="standard_population"):
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(avg_deaths)
     ax.set(xlabel='generation', ylabel='average deaths', title=title)
-    ax.grid()
-    fig.savefig(save_path + "/" + title + ".png")
-
-    title = "average score over generations"
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.plot(avg_score)
-    ax.set(xlabel='generation', ylabel='average score', title=title)
     ax.grid()
     fig.savefig(save_path + "/" + title + ".png")
 

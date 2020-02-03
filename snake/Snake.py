@@ -15,9 +15,9 @@ def run_snake():
     game = Game(20, 20)
 
     snake_green = Player(game, "green")
-    game.player.append(snake_green)
+    #game.player.append(snake_green)
     snake_blu = Player(game, "blue")
-    game.player.append(snake_blu)
+    #game.player.append(snake_blu)
     snake_red = Player(game, "red")
     game.player.append(snake_red)
 
@@ -25,12 +25,12 @@ def run_snake():
 
     rl_agent = DQNAgent('weights/weights_snake_300.hdf5')
     snake_blu.set_agent(rl_agent)
-    ga_agent = GAAgent(population_name="standard_population", generation=120)
+    ga_agent = GAAgent(population_name="standard_population", generation=100)
     snake_red.set_agent(ga_agent)
 
-    game.game_speed = 10  # parameter: game speed
+    game.game_speed = 0  # parameter: game speed
     game.display_option = True  # parameter: show game
-    record = True  # parameter: True if recording the game
+    record = False  # parameter: True if recording the game
     frames = []
 
     while not keyboard.is_pressed('s'):
@@ -46,7 +46,7 @@ def run_snake():
             if record:
                 data = pygame.image.tostring(game.gameDisplay, 'RGBA')
                 from PIL import Image
-                img = Image.frombytes('RGBA', (game.game_width, game.game_height + 60), data)
+                img = Image.frombytes('RGBA', (game.game_width, game.game_height + 80), data)
                 img = img.convert('RGB')
                 frames.append(np.array(img))
     utils.save_animation(frames, 'videos/snake.mp4', 25)
