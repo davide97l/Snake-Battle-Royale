@@ -127,3 +127,4 @@ dmypy.json
 # Others
 .idea/
 snake/old files
+snake/weights/genetic_algorithm/test_population
