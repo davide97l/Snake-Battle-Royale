@@ -1,5 +1,6 @@
 import pygame
 from random import randint
+import numpy as np
 
 
 class Game:
@@ -10,7 +11,7 @@ class Game:
         self.width = width
         self.height = height
         if display_option:
-            self.gameDisplay = pygame.display.set_mode((self.game_width, self.game_height + 80))
+            self.gameDisplay = pygame.display.set_mode((self.game_width, self.game_height + 100))
             self.bg = pygame.image.load("img/background.png")
             pygame.display.set_caption('Snake')
         self.player = []
@@ -41,6 +42,8 @@ class Game:
                 color = "Blue"
             if self.player[i].color == "red":
                 color = "Red"
+            if self.player[i].color == "purple":
+                color = "Purple"
             text_score = myfont.render(color + ' Snake Score: ' + str(self.player[i].score), True, (0, 0, 0))
             text_highest = myfont.render('Record: ' + str(self.player[i].record), True, (0, 0, 0))
             avg = self.player[i].total_score / (self.player[i].deaths + 1)
@@ -59,3 +62,22 @@ class Game:
                 player.display_player(self)
             for food in self.food:
                 food.display_food(self)
+
+    def get_matrix_state(self):
+
+        game_matrix = np.zeros(shape=(self.width+2, self.height+2))
+        for p in self.player:
+            for i, coord in enumerate(p.position):
+                game_matrix[int(coord[1]/self.width), int(coord[0]/self.height)] = 1
+        for food in self.food:
+            game_matrix[int(food.y_food/self.width), int(food.x_food/self.height)] = 2
+        for i in range(self.width+2):
+            for j in range(self.height+2):
+                if i == 0 or j == 0 or i == self.width+1 or j == self.height+1:
+                    game_matrix[i, j] = 1
+        return game_matrix
+
+    def get_player_coord(self, player):
+        head = player.position[-1]
+        player_x, player_y = int(head[0] / self.width), int(head[1] / self.height)
+        return player_x, player_y

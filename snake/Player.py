@@ -4,7 +4,7 @@ import pygame
 
 class Player(object):
 
-    def __init__(self, game, color="green"):
+    def __init__(self, game, color="green", ai="heuristic", depth=10):
         self.color = color
         if self.color == "green":
             self.image = pygame.image.load('img/snakeBody1.png')
@@ -18,6 +18,10 @@ class Player(object):
             self.image = pygame.image.load('img/snakeBody3.png')
             x = 0.7 * game.game_width
             y = 0.3 * game.game_height
+        if self.color == "purple":
+            self.image = pygame.image.load('img/snakeBody4.png')
+            x = 0.7 * game.game_width
+            y = 0.7 * game.game_height
         self.x = x - x % 20
         self.y = y - y % 20
         self.position = []  # coordinates of all the parts of the snake
@@ -36,6 +40,9 @@ class Player(object):
         self.deaths = 0
         self.total_score = 0  # accumulated score
         self.agent = None
+        self.ai = ai  # options: heuristic, dynamic
+        if ai == "dynamic":
+            self.depth = depth  # search range for dynamic move
 
     def init_player(self, game):
         self.x, self.y = game.find_free_space()
@@ -128,7 +135,7 @@ class Player(object):
         else:
             game.end = True
 
-    def euristic_move(self, game):
+    def heuristic_move(self, game):
         distance = []
         for food in game.food:
             distance.append(abs(self.x - food.x_food) + abs(self.y - food.y_food))
@@ -155,6 +162,35 @@ class Player(object):
             reward[self.down] = get_action_score(self.x + move_array[0], self.y + move_array[1])
         return np.argmax(reward)
 
+    def dynamic_move(self, state, game, player_x, player_y, depth=10, initial_depth=10):
+        if depth == initial_depth:
+            state[player_y, player_x] = 0
+        if depth == 0:
+            return 40 - self.distance_closest_food(game, player_x, player_y), -1
+        if state[player_y, player_x] == 1:  # death
+            return -1000 + (initial_depth - depth), -1
+        add_reward = 0
+        if state[player_y, player_x] == 2:  # food
+            add_reward = 100 - (initial_depth - depth)
+
+        if self.food > 20:
+            if state[player_y, player_x+1] == 1 and state[player_y, player_x-1] == 1:
+                add_reward -= 80
+            if state[player_y+1, player_x] == 1 and state[player_y-1, player_x] == 1:
+                add_reward -= 80
+
+        reward = np.array([-1000, -1000, -1000, -1000])  # right, left, up, down
+
+        old_state_value = state[player_y, player_x]
+        state[player_y, player_x] = 1
+        reward[self.right], _ = self.dynamic_move(state, game, player_x+1, player_y, depth-1, initial_depth)
+        reward[self.left], _ = self.dynamic_move(state, game,  player_x-1, player_y, depth-1, initial_depth)
+        reward[self.up], _ = self.dynamic_move(state, game,  player_x, player_y-1, depth-1, initial_depth)
+        reward[self.down], _ = self.dynamic_move(state, game,  player_x, player_y+1, depth-1, initial_depth)
+        state[player_y, player_x] = old_state_value
+
+        return reward[np.argmax(reward)] + add_reward, np.argmax(reward)
+
     def network_move(self, game):
         distance = []
         for food in game.food:
@@ -168,7 +204,12 @@ class Player(object):
     def select_move(self, game):
         if self.agent and (self.agent.name == "ga" or self.agent.name == "dqn"):
             return self.network_move(game)
-        return self.euristic_move(game)
+        if self.ai == "heuristic":
+            return self.heuristic_move(game)
+        player_x, player_y = game.get_player_coord(self)
+        if self.ai == "dynamic":
+            return self.dynamic_move(game.get_matrix_state(), game, player_x, player_y,
+                                     depth=self.depth, initial_depth=self.depth)[1]
 
     def move_as_array(self, move):
         if move == self.right:
@@ -182,3 +223,9 @@ class Player(object):
 
     def set_agent(self, agent):
         self.agent = agent
+
+    def distance_closest_food(self, game, x, y):
+        distance = []
+        for food in game.food:
+            distance.append(abs(x - food.x_food/self.step_size) + abs(y - food.y_food/self.step_size))
+        return distance[np.argmin(distance)]

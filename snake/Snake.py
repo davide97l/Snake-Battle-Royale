@@ -14,12 +14,14 @@ def run_snake():
     pygame.font.init()
     game = Game(20, 20)
 
-    snake_green = Player(game, "green")
-    #game.player.append(snake_green)
+    snake_green = Player(game, "green", ai="heuristic")
+    game.player.append(snake_green)
     snake_blu = Player(game, "blue")
-    #game.player.append(snake_blu)
+    game.player.append(snake_blu)
     snake_red = Player(game, "red")
     game.player.append(snake_red)
+    snake_purple = Player(game, "purple", ai="dynamic", depth=8)
+    game.player.append(snake_purple)
 
     game.food.append(Food(game))
 
@@ -30,7 +32,7 @@ def run_snake():
 
     game.game_speed = 0  # parameter: game speed
     game.display_option = True  # parameter: show game
-    record = False  # parameter: True if recording the game
+    record = True  # parameter: True if recording the game
     frames = []
 
     while not keyboard.is_pressed('s'):
@@ -46,7 +48,7 @@ def run_snake():
             if record:
                 data = pygame.image.tostring(game.gameDisplay, 'RGBA')
                 from PIL import Image
-                img = Image.frombytes('RGBA', (game.game_width, game.game_height + 80), data)
+                img = Image.frombytes('RGBA', (game.game_width, game.game_height + 100), data)
                 img = img.convert('RGB')
                 frames.append(np.array(img))
     utils.save_animation(frames, 'videos/snake.mp4', 25)
