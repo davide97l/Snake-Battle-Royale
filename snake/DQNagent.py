@@ -7,6 +7,7 @@ from random import randint
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import os
 from snake.Game import Game
 from snake.Food import Food
 from snake.Player import Player
@@ -133,7 +134,7 @@ if __name__ == "__main__":
     counter_games = 300  # parameter: number of iterations the agent has been trained
     max_games = 300  # parameter: max number of iterations to train the agent
     checkpoint = 100  # parameter: number of iterations between the which save the weights
-    weights_name = 'weights/weights_snake_'  # parameter: name of the weights
+    weights_name = 'weights/dqn_algorithm/weights_snake_'  # parameter: name of the weights
     weights = weights_name + str(counter_games) + '.hdf5'
     agent = DQNAgent()
     if not new_agent:
@@ -210,6 +211,9 @@ if __name__ == "__main__":
         score_plot.append(game.player[0].score)
         counter_plot.append(counter_games)
         if training and counter_games % checkpoint == 0:
+
+            if not os.path.exists(weights_name):
+                os.makedirs(weights_name)
             weights = weights_name + str(counter_games) + '.hdf5'
             agent.model.save_weights(weights)
     if training:
