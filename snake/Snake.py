@@ -20,7 +20,7 @@ def run_snake():
     game.player.append(snake_blu)
     snake_red = Player(game, "red")
     game.player.append(snake_red)
-    snake_purple = Player(game, "purple", ai="dynamic", depth=8)
+    snake_purple = Player(game, "purple", ai="deepSearch", depth=8)
     game.player.append(snake_purple)
 
     game.food.append(Food(game))

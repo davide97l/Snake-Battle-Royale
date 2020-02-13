@@ -40,9 +40,9 @@ class Player(object):
         self.deaths = 0
         self.total_score = 0  # accumulated score
         self.agent = None
-        self.ai = ai  # options: heuristic, dynamic
-        if ai == "dynamic":
-            self.depth = depth  # search range for dynamic move
+        self.ai = ai  # options: heuristic, deep_search
+        if ai == "deepSearch":
+            self.depth = depth  # search range for deep_search move
 
     def init_player(self, game):
         self.x, self.y = game.find_free_space()
@@ -162,7 +162,7 @@ class Player(object):
             reward[self.down] = get_action_score(self.x + move_array[0], self.y + move_array[1])
         return np.argmax(reward)
 
-    def dynamic_move(self, state, game, player_x, player_y, depth=10, initial_depth=10):
+    def deep_search_move(self, state, game, player_x, player_y, depth=10, initial_depth=10):
         if depth == initial_depth:
             state[player_y, player_x] = 0
         if depth == 0:
@@ -183,10 +183,10 @@ class Player(object):
 
         old_state_value = state[player_y, player_x]
         state[player_y, player_x] = 1
-        reward[self.right], _ = self.dynamic_move(state, game, player_x+1, player_y, depth-1, initial_depth)
-        reward[self.left], _ = self.dynamic_move(state, game,  player_x-1, player_y, depth-1, initial_depth)
-        reward[self.up], _ = self.dynamic_move(state, game,  player_x, player_y-1, depth-1, initial_depth)
-        reward[self.down], _ = self.dynamic_move(state, game,  player_x, player_y+1, depth-1, initial_depth)
+        reward[self.right], _ = self.deep_search_move(state, game, player_x+1, player_y, depth-1, initial_depth)
+        reward[self.left], _ = self.deep_search_move(state, game,  player_x-1, player_y, depth-1, initial_depth)
+        reward[self.up], _ = self.deep_search_move(state, game,  player_x, player_y-1, depth-1, initial_depth)
+        reward[self.down], _ = self.deep_search_move(state, game,  player_x, player_y+1, depth-1, initial_depth)
         state[player_y, player_x] = old_state_value
 
         return reward[np.argmax(reward)] + add_reward, np.argmax(reward)
@@ -207,8 +207,8 @@ class Player(object):
         if self.ai == "heuristic":
             return self.heuristic_move(game)
         player_x, player_y = game.get_player_coord(self)
-        if self.ai == "dynamic":
-            return self.dynamic_move(game.get_matrix_state(), game, player_x, player_y,
+        if self.ai == "deepSearch":
+            return self.deep_search_move(game.get_matrix_state(), game, player_x, player_y,
                                      depth=self.depth, initial_depth=self.depth)[1]
 
     def move_as_array(self, move):
