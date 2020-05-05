@@ -1,4 +1,4 @@
-# Reinforcement-Learning
+# Snake-Battle-Royale
 
 AI learning to play different games exploiting several RL techinques as well as other artificial intelligence algorithms.
 
